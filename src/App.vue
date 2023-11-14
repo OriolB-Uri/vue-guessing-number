@@ -1,22 +1,37 @@
 <script setup>
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
+// Número a adivinar
 const randomNumber = ref(parseInt(Math.random() * 100) + 1)
+
+// Variable de estado nos determina si estamos jugando o no
 const isPlaying = ref(false)
+
+// variable para almacenar todos los números que el jugador va probando
 const previousGuesses = ref([])
+
+
+// Número que ha escrito el usuario en el <input>
 const currentGuess = ref("")
+
+// número de intentos
+const attempts = ref(10)
 
 const startGame = () => {
   console.log("Game Starts")
   isPlaying.value = true
 }
 
-const checkNumber = () => {
-  console.log("Checking Number");
-  previousGuesses.value.push(currentGuess.value);
+const checkGuess = () => {
+  previousGuesses.value.push(currentGuess.value)
+  currentGuess.value = ""
+  attempts.value-- 
 }
 
+const lastNumber = computed(() => {
+  return previousGuesses.value[previousGuesses.value.length - 1]
+})
 
 </script>
 
@@ -30,12 +45,15 @@ const checkNumber = () => {
       <div id="wrapper">
         <label for="guessField">Guess a number</label>
         <input v-model="currentGuess" type="number" id="guessField">
-        <button @click="checkNumber" class="button-check">Check Guess</button>
+        <button @click="checkGuess" class="button-check">Check Guess</button>
 
-        <div class="resultParas">
-          <p>Previous Guesses: <span class="guesses">{{ previousGuesses.join(" - ") }}</span></p>
-          <p>Guesses Remaining: <span class="lastResult">10</span></p>
-          <p class="lowOrHi"></p>
+        <div v-show="lastNumber" class="resultParas">
+          <p>Previous Guesses: <span class="guesses"> {{ previousGuesses.join("-") }}</span></p>
+          <p>Last number checked: {{ lastNumber }}</p>
+          <p>Guesses Remaining: <span class="lastResult">{{ attempts }}</span></p>
+          <p v-if="randomNumber > lastNumber" style="color: green">El número debe ser mayor</p>
+          <p v-else style="color: red">El número debe ser menor</p>
+
         </div>
       </div>
     </section>
